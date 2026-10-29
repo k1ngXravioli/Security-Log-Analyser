@@ -1,3 +1,13 @@
+## Detection-quality regression suite (29 October 2026)
+
+- Added 27 manually-labelled **synthetic** scenarios spanning SSH authentication, encoded URL indicators and noisy benign web traffic.
+- Fixed 2 missed indicators (encoded SQL and double-encoded path traversal) and 2 false-positive scenarios (repeated single-path 404s and documentation filenames).
+- Added bounded two-pass URL decoding for defensive signature checks and distinct-path thresholds for 404 scan detection.
+- Added 8 focused regression/benchmark unit tests (**24 total passing tests**).
+- Recorded baseline versus revised labelled-scenario metrics in BENCHMARK.md and evidence/.
+- Dashboard remains unchanged and retains the original 134-event / 11-alert demonstration.
+- Curated benchmark accuracy is **not** claimed as real-world detection accuracy.
+
 # Review and reliability improvements
 
 ## October 2026 — Detection accuracy review
