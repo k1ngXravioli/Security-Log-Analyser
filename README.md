@@ -1,10 +1,47 @@
-# Security Log Analyser
+# SENTINEL — Security Log Analyser
 
-**Python · Blue-Team Security · Log Analysis · Detection Engineering**
+**Final Desktop Application · Python · Tkinter · Blue-Team Detection Engineering**
 
-A standard-library Python command-line tool that examines **SSH authentication** and **Apache/Nginx-style web access** logs, identifies patterns worth investigating, and produces human-readable or JSON alerts. The project uses time-window analysis, basic event correlation, signature matching and severity-based reporting.
+**SENTINEL is the main graphical interface** for this project. It lets you select SSH and web logs, analyse suspicious activity, explore alerts and severity charts, review potential defensive responses, and export reports. The original Python **command-line analyser remains available** for scripting, learning and repeatable testing.
 
-> **Scope:** This is a defensive, offline log analyser. It does not connect to hosts, launch scans, attempt authentication, or block IP addresses. Alerts indicate patterns for review, **not confirmed compromises**.
+> **Offline defensive project:** SENTINEL does not scan networks, connect to remote systems, block addresses automatically, or establish that an account is compromised. The included logs are synthetic demonstration data.
+
+![SENTINEL SOC dashboard showing 134 analysed events, 11 alerts and security activity charts](screenshots/sentinel_dashboard_preview.webp)
+
+*Final SENTINEL desktop interface, captured in a virtual desktop using the included synthetic demonstration logs. Mac appearance may vary.*
+
+## Run SENTINEL on macOS
+
+**Requirements:** Python 3.10+ with Tkinter. No other third-party packages are required.
+
+1. [Download the entire project ZIP](https://github.com/k1ngXravioli/Security-Log-Analyser/archive/refs/heads/main.zip) and double-click it to extract.
+2. Open **Terminal** and run:
+
+```bash
+cd ~/Downloads/Security-Log-Analyser-main
+python3 gui_dashboard.py
+```
+
+3. Click **Load demo data** for an instant working example.
+4. Use **Overview** to inspect metrics/charts, **Alerts** to search/filter and inspect detections, and **Response** for **review-only** example firewall commands.
+5. To analyse log files that you own or have permission to inspect, use the file chooser and click **Run Security Scan**. JSON and CSV export are available on the Alerts page.
+
+If Tkinter does not open, check with `python3 -m tkinter` and use a Python installation with Tk support.
+
+### Verified demo
+
+The included synthetic sample contains **55 SSH events and 79 web requests**, producing **11 alerts** (1 critical, 3 high, 7 medium) across four documentation IP addresses. The underlying analyser passes **12 automated tests**. A virtual-desktop smoke test confirmed that the GUI opened, loaded demo data, displayed the 11 alerts, filtered/searched results, switched tabs, and exported matching JSON/CSV reports. This is **not a claim of testing on every macOS version**.
+
+## Original command-line analyser
+
+For direct Python / terminal analysis, run:
+
+```bash
+python3 -m unittest discover -v
+python3 log_analyser.py --ssh auth.log --web access.log --year 2026 --json report.json
+```
+
+To regenerate the sample files, use `python3 generate_sample_logs.py` (**overwrites existing `auth.log` and `access.log` in that folder**).
 
 ## Detection coverage
 
@@ -18,29 +55,6 @@ A standard-library Python command-line tool that examines **SSH authentication**
 | Web | Known scanner User-Agent strings | Flags strings such as `sqlmap` and `nikto` | [T1595](https://attack.mitre.org/techniques/T1595/) |
 
 The ATT&CK mappings provide context. They **do not prove** which attack technique was used. In particular, SSH failure logs alone cannot demonstrate password spraying, since they do not show the passwords attempted.
-
-## Quick start
-
-Requires Python 3.10+; **no third-party packages**.
-
-```bash
-python3 -m unittest discover -v
-python3 generate_sample_logs.py
-python3 log_analyser.py --ssh auth.log --web access.log --year 2026 --json report.json
-```
-
-The sample logs are synthetic and use reserved documentation IP addresses. `generate_sample_logs.py` **overwrites** `auth.log` and `access.log` in the current directory; avoid running it in a folder containing real logs with those names.
-
-Sample dataset outcome (29 October 2026):
-
-```text
-SSH events parsed  : 55
-Web requests parsed: 79
-Alerts raised      : 11
-By severity        : CRITICAL=1, HIGH=3, MEDIUM=7
-```
-
-The highest-severity example is a successful SSH login following repeated failures for the same user and source address. That merits investigation but is **not proof that an account was compromised**.
 
 ## Command options
 
@@ -56,6 +70,8 @@ The highest-severity example is a successful SSH login following repeated failur
 At least one log input is required. Threshold and window must be positive integers.
 
 ## Implementation
+
+- **SENTINEL Tkinter GUI** — accessible desktop navigation, severity metrics and charts, tabular alerts, details, offline demo-data loading and JSON/CSV exports. The interface calls the existing Python detection engine.
 
 - Regex-based parsing extracts timestamps, IPs, account names, HTTP paths, status codes and User-Agent strings.
 - **Sliding-window logic** finds failure bursts and clusters of distinct usernames within a chosen time range.
@@ -75,9 +91,11 @@ At least one log input is required. Threshold and window must be positive intege
 
 ## Project files
 
-- `log_analyser.py` — parser, detectors and CLI report generator
+- `gui_dashboard.py` — **final SENTINEL desktop application**; run this to open the graphical interface
+- `log_analyser.py` — underlying detection engine and CLI report generator
 - `test_log_analyser.py` — automated tests
 - `generate_sample_logs.py` — deterministic synthetic test data generator
 - `auth.log`, `access.log` — example logs
 - `report.json` — example structured alert output
+- `screenshots/sentinel_dashboard_preview.webp` — screenshot of the final interface
 - `CHANGELOG.md` — source-review improvements
