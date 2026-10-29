@@ -51,6 +51,17 @@ On the **Live file monitor** page:
 
 This is **near-real-time local-file monitoring**, not direct network telemetry, packet capture, or a SIEM connected to production infrastructure. The map updates when the underlying detection findings change and valid coordinates are available.
 
+## Detection quality and regression evidence
+
+SENTINEL now includes a **27-scenario labelled synthetic regression benchmark** with benign and suspicious cases separate from the original demo logs. Before the changes, **23/27 scenarios** matched the expected alert categories and **2/14 benign scenarios** raised unwanted alerts. After tightening URL encoding, sensitive-file matching and 404-scan handling, **27/27 scenarios matched** with **0/14 benign scenarios flagged**. The expanded automated suite includes **24 tests**.
+
+These are **regression results on deliberately constructed examples**, **not real-world detection accuracy**. Read [BENCHMARK.md](BENCHMARK.md) for methodology, limitations and before/after evidence.
+
+```bash
+python3 benchmark_detection.py --json benchmark_results.json
+python3 -m unittest discover -v
+```
+
 ## Command-line analyser and tests
 
 The original CLI and detection rules are preserved:
@@ -60,7 +71,7 @@ python3 log_analyser.py --ssh auth.log --web access.log --year 2026 --json repor
 python3 -m unittest discover -v
 ```
 
-The suite includes **12 existing detection tests** and **4 additional map/location helper tests** (16 total), covering IP filtering and fictional-versus-real map placement. A virtual-desktop smoke test also confirmed startup, demo loading, map drawing, alert filters, tab navigation and file-watch controls. On macOS the exact rendering may vary.
+The suite includes **12 original detection tests**, **4 map/location helper tests** and **8 detector-regression/benchmark tests** (**24 total**), covering IP filtering and fictional-versus-real map placement. A virtual-desktop smoke test also confirmed startup, demo loading, map drawing, alert filters, tab navigation and file-watch controls. On macOS the exact rendering may vary.
 
 ## Detection coverage
 
@@ -86,6 +97,10 @@ archived synthetic auth.log / access.log
 report.json                      # Example CLI output
 test_log_analyser.py             # 12 core tests
 test_dashboard_helpers.py        # 4 map/IP safety tests
+benchmark_detection.py            # Curated synthetic scenarios and metrics
+test_detection_benchmark.py       # 8 detector regression / benchmark tests
+BENCHMARK.md                      # Benchmark methodology and limitations
+evidence/                        # Before/after benchmark summaries
 CHANGELOG.md
 ```
 
