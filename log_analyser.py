@@ -22,6 +22,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import unquote
 
 # --------------------------------------------------------------------------
 # Regex patterns for parsing log lines
@@ -48,7 +49,7 @@ WEB_SIGNATURES = {
     "Path traversal": (re.compile(r"(\.\./|\.\.%2f|%2e%2e)", re.I), "T1190"),
     "Cross-site scripting": (re.compile(r"(<script|%3cscript|onerror=)", re.I), "T1190"),
     "Sensitive file probing": (
-        re.compile(r"(\.env|\.git/|/etc/passwd|wp-login|phpmyadmin|\.htpasswd|/admin\b)", re.I),
+        re.compile(r"((?:^|[/=?])\.env(?:$|[/?.&#])|\.git/|/etc/passwd|wp-login|phpmyadmin|\.htpasswd|/admin\b)", re.I),
         "T1595",
     ),
 }
@@ -221,18 +222,35 @@ def analyse_ssh(events, threshold, window):
 # --------------------------------------------------------------------------
 # Web detections
 # --------------------------------------------------------------------------
+def normalise_request_path(raw_path):
+    """Decode up to two URL-encoding layers for *detection only*.
+
+    Leaves the original request untouched for reports. Encoded strings are not
+    automatically attacks: these are only compared against known signatures.
+    Bounded decoding avoids indefinite repeated unquoting of hostile inputs.
+    """
+    path = raw_path
+    for _ in range(2):
+        decoded = unquote(path, errors='replace')
+        if decoded == path:
+            break
+        path = decoded
+    return path
+
+
 def analyse_web(requests, threshold, window):
     alerts = []
     hits = defaultdict(lambda: defaultdict(list))  # ip -> category -> [(ts, path)]
-    not_found = defaultdict(list)                  # ip -> [timestamps]
+    not_found = defaultdict(list)                  # ip -> [(ts, raw path)]
     attack_tool = {}
 
     for r in requests:
+        decoded_path = normalise_request_path(r["path"])
         for name, (rx, _) in WEB_SIGNATURES.items():
-            if rx.search(r["path"]):
+            if rx.search(decoded_path):
                 hits[r["ip"]][name].append((r["ts"], r["path"]))
         if r["status"] == 404:
-            not_found[r["ip"]].append(r["ts"])
+            not_found[r["ip"]].append((r["ts"], r["path"]))
         if r["ua"] and BAD_USER_AGENTS.search(r["ua"]):
             attack_tool.setdefault(r["ip"], []).append((r["ts"], r["ua"]))
 
@@ -246,13 +264,17 @@ def analyse_web(requests, threshold, window):
                 len(items), fmt(min(t for t, _ in items)),
                 fmt(max(t for t, _ in items)), mitre))
 
-    for ip, times in not_found.items():
-        count, first, last = biggest_burst(times, window)
-        if count >= threshold * 2:
+    for ip, attempts in not_found.items():
+        # A broken favicon or a missing static asset can yield dozens of 404s.
+        # Require both burst volume and diversity of missing paths, in the
+        # SAME sliding window, before treating them as reconnaissance.
+        unique_paths, count, first, last = biggest_username_burst(attempts, window)
+        minimum_distinct = max(3, threshold)
+        if count >= threshold * 2 and unique_paths >= minimum_distinct:
             alerts.append(Alert(
                 "MEDIUM", "Directory/URL scanning", ip,
-                f"{count} 'not found' responses in {int(window.total_seconds() // 60)} min "
-                "(probing for hidden pages)",
+                f"{count} 'not found' responses across {unique_paths} distinct paths "
+                f"in {int(window.total_seconds() // 60)} min (possible probing)",
                 count, fmt(first), fmt(last), "T1595"))
 
     for ip, items in attack_tool.items():
@@ -292,7 +314,7 @@ def print_report(alerts, ssh_count, web_count):
         print(" TOP OFFENDING IPs (by number of alerts)")
         for ip, n in ips.most_common(5):
             print(f"   {ip:<18} {n} alert(s)")
-        print(" Recommended action: review and consider blocking these IPs at the firewall.")
+        print(" Recommended action: review alerts and validate context before any response.")
     print("=" * 72)
 
 
