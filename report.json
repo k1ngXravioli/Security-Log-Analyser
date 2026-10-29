@@ -1,0 +1,112 @@
+[
+  {
+    "severity": "CRITICAL",
+    "category": "Possible account compromise",
+    "source_ip": "203.0.113.99",
+    "description": "Successful login as 'bob' right after 6 failed attempts",
+    "count": 7,
+    "first_seen": "2026-10-29 14:00:00",
+    "last_seen": "2026-10-29 14:01:10",
+    "mitre": "T1078"
+  },
+  {
+    "severity": "HIGH",
+    "category": "Attack tool detected",
+    "source_ip": "203.0.113.77",
+    "description": "User-Agent identifies a hacking tool: sqlmap/1.7",
+    "count": 4,
+    "first_seen": "2026-10-29 05:00:00",
+    "last_seen": "2026-10-29 05:00:09",
+    "mitre": "T1595"
+  },
+  {
+    "severity": "HIGH",
+    "category": "SQL injection",
+    "source_ip": "203.0.113.77",
+    "description": "2 suspicious request(s), e.g. /products?id=1'--",
+    "count": 2,
+    "first_seen": "2026-10-29 05:00:00",
+    "last_seen": "2026-10-29 05:00:03",
+    "mitre": "T1190"
+  },
+  {
+    "severity": "HIGH",
+    "category": "Path traversal",
+    "source_ip": "203.0.113.77",
+    "description": "1 suspicious request(s), e.g. /download?file=../../../etc/passwd",
+    "count": 1,
+    "first_seen": "2026-10-29 05:00:06",
+    "last_seen": "2026-10-29 05:00:06",
+    "mitre": "T1190"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Directory/URL scanning",
+    "source_ip": "203.0.113.150",
+    "description": "15 'not found' responses in 10 min (probing for hidden pages)",
+    "count": 15,
+    "first_seen": "2026-10-29 09:00:00",
+    "last_seen": "2026-10-29 09:00:28",
+    "mitre": "T1595"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "SSH brute force",
+    "source_ip": "203.0.113.5",
+    "description": "14 failed logins within 10 min (most targeted: root, admin, test)",
+    "count": 14,
+    "first_seen": "2026-10-29 03:00:00",
+    "last_seen": "2026-10-29 03:01:31",
+    "mitre": "T1110"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Multiple usernames targeted",
+    "source_ip": "203.0.113.5",
+    "description": "8 usernames targeted across 14 failed attempts within 10 min",
+    "count": 14,
+    "first_seen": "2026-10-29 03:00:00",
+    "last_seen": "2026-10-29 03:01:31",
+    "mitre": "T1110"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "SSH brute force",
+    "source_ip": "203.0.113.99",
+    "description": "6 failed logins within 10 min (most targeted: bob)",
+    "count": 6,
+    "first_seen": "2026-10-29 14:00:00",
+    "last_seen": "2026-10-29 14:00:50",
+    "mitre": "T1110"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Sensitive file probing",
+    "source_ip": "203.0.113.150",
+    "description": "5 suspicious request(s), e.g. /.env",
+    "count": 5,
+    "first_seen": "2026-10-29 09:00:00",
+    "last_seen": "2026-10-29 09:00:12",
+    "mitre": "T1595"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Sensitive file probing",
+    "source_ip": "203.0.113.77",
+    "description": "1 suspicious request(s), e.g. /download?file=../../../etc/passwd",
+    "count": 1,
+    "first_seen": "2026-10-29 05:00:06",
+    "last_seen": "2026-10-29 05:00:06",
+    "mitre": "T1595"
+  },
+  {
+    "severity": "MEDIUM",
+    "category": "Cross-site scripting",
+    "source_ip": "203.0.113.77",
+    "description": "1 suspicious request(s), e.g. /search?q=<script>alert(1)</script>",
+    "count": 1,
+    "first_seen": "2026-10-29 05:00:09",
+    "last_seen": "2026-10-29 05:00:09",
+    "mitre": "T1190"
+  }
+]
