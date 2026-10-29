@@ -1,0 +1,16 @@
+{
+  "dataset": "manually labelled synthetic regression cases",
+  "date": "2026-10-29",
+  "case_count": 27,
+  "benign_cases": 14,
+  "warning": "Engineering regression benchmark on hand-crafted cases; not an unbiased or real-world performance estimate.",
+  "version": "updated detection rules",
+  "passed_cases": 27,
+  "benign_cases_with_alerts": 0,
+  "category_true_positives": 15,
+  "category_false_positives": 0,
+  "category_false_negatives": 0,
+  "category_precision": 1,
+  "category_recall": 1,
+  "mismatched_cases": []
+}
